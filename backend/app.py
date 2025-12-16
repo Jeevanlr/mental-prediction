@@ -6,7 +6,7 @@ import pandas as pd
 import joblib
 import cv2
 import numpy as np
-from deepface import DeepFace
+# DeepFace imported lazily in predict_emotion to avoid startup crashes
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from flask_cors import CORS
@@ -414,6 +414,17 @@ def predict_emotion():
 
         print(f"✅ Image decoded successfully, shape: {frame.shape}")
         print("🧠 Running DeepFace...")
+        
+        # Lazy import DeepFace to avoid startup crashes
+        try:
+            from deepface import DeepFace
+        except Exception as import_error:
+            print(f"⚠️ DeepFace import failed: {import_error}")
+            response = jsonify({
+                "error": "Emotion detection service is temporarily unavailable. Please try again later."
+            })
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 503
         
         result = DeepFace.analyze(
             img_path=frame,
