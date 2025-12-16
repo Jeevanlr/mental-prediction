@@ -38,10 +38,20 @@ def load_artifact(*relative_paths):
 # ==========================
 # Load Models
 # ==========================
-clf = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
-le = joblib.load(os.path.join(BASE_DIR, "label_encoder.pkl"))
-text_model = load_artifact("logistic_regression_model.pkl")
-vectorizer = load_artifact("tfidf_vectorizer.pkl")
+try:
+    clf = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
+    le = joblib.load(os.path.join(BASE_DIR, "label_encoder.pkl"))
+    text_model = load_artifact("logistic_regression_model.pkl")
+    vectorizer = load_artifact("tfidf_vectorizer.pkl")
+    print("✅ All models loaded successfully")
+except Exception as e:
+    print(f"⚠️ Error loading models: {e}")
+    print("⚠️ Some features may not work. Continuing startup...")
+    # Set to None so we can check later
+    clf = None
+    le = None
+    text_model = None
+    vectorizer = None
 
 # ==========================
 # Gemini API Configuration
@@ -66,8 +76,14 @@ safety_settings = {
 # ==========================
 # Load Symptom Features
 # ==========================
-symptoms_df = pd.read_csv(os.path.join(BASE_DIR, "mental_symptoms_illness.csv"))
-symptoms = [col for col in symptoms_df.columns if col != "Disease"]
+try:
+    symptoms_df = pd.read_csv(os.path.join(BASE_DIR, "mental_symptoms_illness.csv"))
+    symptoms = [col for col in symptoms_df.columns if col != "Disease"]
+    print("✅ Symptoms data loaded successfully")
+except Exception as e:
+    print(f"⚠️ Error loading symptoms CSV: {e}")
+    symptoms = []
+    symptoms_df = None
 
 
 # ==========================
@@ -154,6 +170,14 @@ def logout():
 @app.route("/predict_symptoms", methods=["POST"])
 def predict_symptoms():
     try:
+        # Check if models are loaded
+        if clf is None or le is None or not symptoms:
+            return jsonify({
+                "error": "Models not loaded. Please check server logs.",
+                "prediction": "Unknown",
+                "ai_description": "The prediction service is temporarily unavailable. Please try again later."
+            }), 503
+        
         data = request.get_json(force=True)
         print("raw data:", repr(data))
 
