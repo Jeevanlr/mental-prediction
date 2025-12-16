@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">mindcheck</string>
+    <string name="title_activity_main">mindcheck</string>
+    <string name="package_name">com.mindcheck.app</string>
+    <string name="custom_url_scheme">com.mindcheck.app</string>
+</resources>

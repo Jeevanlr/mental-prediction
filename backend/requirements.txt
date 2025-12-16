@@ -1,0 +1,10 @@
+Flask
+pandas
+numpy
+scikit-learn
+joblib
+opencv-python-headless
+deepface
+gunicorn
+google-generativeai
+flask-cors
