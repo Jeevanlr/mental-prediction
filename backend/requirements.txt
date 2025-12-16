@@ -7,6 +7,5 @@ opencv-python-headless
 gunicorn
 google-generativeai
 flask-cors
-tensorflow>=2.15.0,<2.21.0
-tf-keras
+tensorflow==2.15.0
 deepface
