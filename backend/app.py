@@ -416,8 +416,19 @@ def predict_emotion():
         print("🧠 Running DeepFace...")
         
         # Lazy import DeepFace to avoid startup crashes
+        # DeepFace is optional - if not available, return a helpful message
         try:
             from deepface import DeepFace
+        except ImportError as import_error:
+            print(f"⚠️ DeepFace not available: {import_error}")
+            print("⚠️ Emotion detection requires DeepFace. Using fallback response.")
+            # Return a friendly fallback response
+            response = jsonify({
+                "emotion": "Neutral",
+                "gemini_output": "Emotion detection is currently unavailable on this server. Please use the text-based or symptom-based prediction features instead. Your mental health matters, and we're here to support you through other means."
+            })
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response, 200
         except Exception as import_error:
             print(f"⚠️ DeepFace import failed: {import_error}")
             response = jsonify({
